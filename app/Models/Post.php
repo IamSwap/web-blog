@@ -37,6 +37,11 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get short description for the post
+     *
+     * @return string
+     */
     public function getShortDescriptionAttribute()
     {
         if (strlen($this->description) < 120) {
@@ -44,5 +49,17 @@ class Post extends Model
         }
 
         return Str::limit($this->description, 120, '...');
+    }
+
+    /**
+     * Posts filter scope
+     * @return void
+     */
+    public function scopeFilterBy($query, array $filters)
+    {
+        $sort = $filters['sort'] ?? 'desc';
+        $orderBy = $filters['orderBy'] ?? 'publication_date';
+
+        $query->orderBy($orderBy, $sort);
     }
 }

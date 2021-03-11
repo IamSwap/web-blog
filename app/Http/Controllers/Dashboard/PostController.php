@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Models\Post;
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\CreatePostRequest;
 
 class PostController extends Controller
 {
@@ -35,16 +35,11 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \App\Http\Requests\CreatePostRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreatePostRequest $request)
     {
-        $request->validate([
-            'title' => 'required|string',
-            'description' => 'required|string',
-        ]);
-
         $request->user()->posts()->create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),

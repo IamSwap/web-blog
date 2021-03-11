@@ -3,37 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\PostFiltersRequest;
 
 class PostController extends Controller
 {
     /**
      * Return list of posts on the homepage
      *
-     * @param \Illuminate\Http\Request $request
+     * @param \App\Http\Requests\PostFiltersRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(PostFiltersRequest $request)
     {
-        $request->validate([
-            'orderBy' => 'sometimes|in:publication_date,title',
-            'sort' => 'sometimes|in:asc,desc',
-        ]);
-
         $cacheKey = md5(json_encode([
             'model' => 'posts',
             'query' => $request->query()
         ]));
 
         $posts = Cache::tags('posts')->remember($cacheKey, 3600, function () use ($request) {
-            $sort = $request->input('sort', 'desc');
-            $orderBy = $request->input('orderBy', 'publication_date');
+            $filters = $request->only(['orderBy', 'sort']);
 
             return Post::with('user')
-                ->orderBy($orderBy, $sort)
+                ->filterBy($filters)
                 ->simplePaginate(12)
-                ->appends($request->only(['orderBy', 'sort']));
+                ->appends($filters);
         });
 
         return view('home', [
