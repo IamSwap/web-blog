@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,7 +24,7 @@ class Post extends Model
      * @var array
      */
     protected $casts = [
-        'publication_data' => 'datetime'
+        'publication_date' => 'datetime'
     ];
 
     /**
@@ -34,5 +35,14 @@ class Post extends Model
     public function user() : BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getShortDescriptionAttribute()
+    {
+        if (strlen($this->description) < 120) {
+            return $this->description;
+        }
+
+        return Str::limit($this->description, 120, '...');
     }
 }
